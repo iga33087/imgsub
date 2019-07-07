@@ -203,10 +203,15 @@ function c_color(x){
 }
 function upimg(x) {
   var file=x.files[0];
-  var url = window.URL.createObjectURL(file);
-  window.URL.revokeObjectURL(file);
-  img.src=url;
-  canvas_wh();
+  if(file['type']!='image/gif'&&file['type']!='image/jpeg'&&file['type']!='image/png') {
+    alert("請選擇圖片檔。");
+  }
+  else {
+    var url = window.URL.createObjectURL(file);
+    window.URL.revokeObjectURL(file);
+    img.src=url;
+    canvas_wh();
+  }
 }
 function download(){  //下載截取的圖片
   var anchor=document.createElement('a');
