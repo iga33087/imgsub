@@ -1,0 +1,279 @@
+<html>
+<head>
+<meta charset="UTF-8" />
+<style>
+body {
+  margin:0;
+  padding:0;
+  font-family:微軟正黑體;
+}
+#top {
+  height:100px;
+  line-height:100px;
+  background-color:#222;
+  text-align:center;
+  color:#fff;
+  font-size:30px;
+  margin:0 0 20px 0;
+}
+#d1 {
+  width:500px;
+  margin:0 auto;
+}
+#d1-img {
+  margin:0 0 20px 0;
+}
+.img1 {
+  display:block;
+  margin:auto;
+  display:none;
+}
+#canvas {
+  display:block;
+  margin:auto;
+  cursor: crosshair;
+}
+#d1-set {
+  background-color:#fff;
+  border-radius:10px;
+  padding:20px;
+  margin:0 0 20px 0;
+  box-shadow:0 0 10px #222;
+}
+#d1-set-d {
+  padding:0 0 10px 0;
+}
+#d1-set-d-text {
+  font-size:25px;
+  display: inline-block;
+}
+.v1 {
+  border-radius:10px; 
+  display: inline-block;
+  font-size:25px;
+  padding:10px;
+}
+
+#black {
+  width:100%;
+  height:100%;
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:99;
+  background-color:rgba(0,0,0,0.8);
+  display:none;
+}
+.b1 {
+  padding:10px 0;
+  background-color:#222;
+  margin:0 auto;
+  text-align:center;
+  font-size:30px;
+  color:#fff;
+  border-radius:10px;
+  cursor: pointer;
+  -webkit-user-select: none;
+}
+.b1:hover {
+  background-color:#888;
+  color:#000;
+}
+.c {
+  width:300px;
+}
+</style>
+</head>
+<body>
+<div id="black"></div>
+<div id="main">
+  <div id="top">表情包生產器</div>
+  <div id="d1-img">
+	<img class="img1" src="img/1.jpg">
+	<canvas id="canvas"></canvas>
+  </div>
+  <div id="d1">
+	<div id="d1-set">
+	  <div id="d1-set-d">
+		<div id="d1-set-d-text1">請點擊上圖任意位置已成為文字生成座標，也可預覽圖片，按住Ctrl點擊滑鼠左鍵即可堆疊文字</div>
+	  </div>
+	  <div id="d1-set-d">
+	    <div id="d1-set-d-text">選擇圖片</div>
+		<input type="file" id="img-c" class="v1" onchange=upimg(this)>
+	  </div>
+	  <div id="d1-set-d">
+	    <div id="d1-set-d-text">文字內容</div>
+		<input type="text" id="text-value" class="v1" value="測試文字">
+	  </div>
+	  <div id="d1-set-d">
+	    <div id="d1-set-d-text">文字大小</div>
+		<select id="text-size" class="v1">
+		  <option value="10px">10px</option>
+		  <option value="15px">15px</option>
+		  <option value="20px">20px</option>
+		  <option value="25px">25px</option>
+　        <option value="30px" selected>30px</option>
+　        <option value="40px">40px</option>
+　        <option value="50px">50px</option>
+　        <option value="60px">60px</option>
+　        <option value="70px">70px</option>
+　        <option value="80px">80px</option>
+　        <option value="90px">90px</option>
+　        <option value="100px">100px</option>
+        </select>
+	  </div>
+	  <div id="d1-set-d">
+	    <div id="d1-set-d-text">文字顏色</div>
+		<select id="text-color" class="v1 c" onchange=c_color(this)>
+		</select>
+	  </div>
+	  <div id="d1-set-d">
+	    <div id="d1-set-d-text">文字字型</div>
+		<select id="text-family" class="v1 c">
+　        <option value="新細明體">新細明體</option>
+          <option value="微軟正黑體">微軟正黑體</option>
+		  <option value="標楷體">標楷體</option>
+		</select>
+	  </div>
+	  <div id="d1-set-d">
+	    <div id="d1-set-d-text">邊框大小</div>
+		<select id="border-size" class="v1">
+　        <option value="1">1px</option>
+　        <option value="2">2px</option>
+　        <option value="3">3px</option>
+　        <option value="4">4px</option>
+　        <option value="5" selected>5px</option>
+　        <option value="6">6px</option>
+　        <option value="7">7px</option>
+　        <option value="8">8px</option>
+          <option value="9">9px</option>
+          <option value="10">10px</option>
+        </select>
+	  </div>
+	  <div id="d1-set-d">
+	    <div id="d1-set-d-text">邊框顏色</div>
+		<select id="border-color" class="v1 c" onchange=c_color(this)>
+		</select>
+	  </div>
+	  <div class="b1" onclick=download()>下載圖片</div>
+	</div>
+  </div>
+</div>
+</body>
+<script>
+var color=["#fff","#000","#f00","#0f0","#00f","#FFFF00"];
+var xy=[-100,-100];
+var c = document.getElementById("canvas");
+var ctx = c.getContext("2d");
+var img = document.querySelectorAll(".img1")[0];
+var tv,ts,tc,tf,bs,bc;
+
+async function canvas_wh(){  //canvas寬高等於img寬高
+  return new Promise((resolve)=>{
+      resolve();
+    })
+	.then(delay(200))
+	.then(function() {
+	  document.querySelectorAll("#canvas")[0].width=document.querySelectorAll(".img1")[0].width;
+      document.querySelectorAll("#canvas")[0].height=document.querySelectorAll(".img1")[0].height;
+      canvas_dr("","","","","","",0);
+	})
+}
+function canvas_dr(tv,ts,tc,tf,bs,bc,c){  //開始繪製
+    if(c==0){
+      ctx.drawImage(img,0,0);
+	}
+    ctx.lineWidth = bs;
+    ctx.font = ts+" "+tf;
+    ctx.strokeStyle = bc;
+    ctx.strokeText(tv,xy[0],xy[1]);
+    ctx.fillStyle = tc;
+    ctx.fillText(tv,xy[0],xy[1]);
+}
+function add_color(){  //把顏色陣列再入選單
+  var text="";
+  for(let i in color) {
+    text+="<option value='"+color[i]+"' style='background-color:"+color[i]+";'></option>";
+  }
+  document.querySelectorAll("#text-color")[0].innerHTML=text;
+  document.querySelectorAll("#border-color")[0].innerHTML=text;
+}
+function c_color(x){
+  x.style.backgroundColor=x.value;
+}
+function upimg(x) {
+  var file=x.files[0];
+  var url = window.URL.createObjectURL(file);
+  window.URL.revokeObjectURL(file);
+  img.src=url;
+  canvas_wh();
+}
+function download(){  //下載截取的圖片
+  var anchor=document.createElement('a');
+  document.body.appendChild(anchor);
+  anchor.download='擷取.jpeg';
+  anchor.href=c.toDataURL("image/jpeg",1);
+  anchor.click();
+  anchor.remove();
+}
+
+function delay(x) {
+  return function(v) {  return new Promise(function(resolve, reject) {
+    setTimeout(function(){
+      resolve(v);
+    },x);
+  });
+  }
+}
+function dis_black(x){
+  if(x==1) {
+    document.querySelectorAll("#black")[0].style.display="block";
+  }
+  else {
+    document.querySelectorAll("#black")[0].style.display="none";
+  }
+}
+document.querySelectorAll("#canvas")[0].addEventListener("mousemove", function() {
+  var x = event.clientX-this.offsetLeft;
+  var y = event.clientY-this.offsetTop+document.body.scrollTop; 
+  xy=[x,y];
+}, false);
+document.querySelectorAll("#canvas")[0].addEventListener("mouseup", function() {
+  tv=document.querySelectorAll("#text-value")[0].value;
+  ts=document.querySelectorAll("#text-size")[0].value;
+  tc=document.querySelectorAll("#text-color")[0].value;
+  tf=document.querySelectorAll("#text-family")[0].value;
+  bs=document.querySelectorAll("#border-size")[0].value;
+  bc=document.querySelectorAll("#border-color")[0].value;
+  if (event.ctrlKey) {
+    canvas_dr(tv,ts,tc,tf,bs,bc,1);
+  } else {
+    canvas_dr(tv,ts,tc,tf,bs,bc,0);
+  }
+}, false);
+canvas_wh();
+add_color();
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
