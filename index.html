@@ -228,7 +228,7 @@ function upimg(x) {
 function download(){  //下載截取的圖片
   var anchor=document.createElement('a');
   document.body.appendChild(anchor);
-  anchor.download='擷取.jpeg';
+  anchor.download='生成圖片.jpeg';
   anchor.href=c.toDataURL("image/jpeg",1);
   anchor.click();
   anchor.remove();
